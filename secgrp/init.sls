@@ -3,8 +3,8 @@
 
 {{ state_id_prefix }}_set_common_secgrp:
   boto_secgroup.present:
-    - keyid: 
-    - key: 
+    - keyid: {{ pillar['keyid'] }}
+    - key: {{ pillar['key'] }}
     - name: gaies-common-scg
     - region: us-east-2
     - description: Trusted SSH Access
@@ -25,8 +25,8 @@
 
 {{ state_id_prefix }}_set_{{ env }}_secgrp:
   boto_secgroup.present:
-    - keyid: 
-    - key: 
+    - keyid: {{ pillar['keyid'] }}
+    - key: {{ pillar['key'] }}
     - name: gaies-{{ env }}-scg-id
     - region: us-east-2
     - description: Trusted SSH Access
@@ -44,8 +44,8 @@
 
 {{ state_id_prefix }}_set_{{ env }}__Test_secgrp:
   boto_secgroup.present:
-    - keyid: 
-    - key: 
+    - keyid: {{ pillar['keyid'] }}
+    - key: {{ pillar['key'] }}
     - name: gaies-{{ env }}-scg-id_testing_this
     - region: us-east-2
     - description: Trusted SSH Access
