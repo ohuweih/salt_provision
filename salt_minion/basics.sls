@@ -1,4 +1,4 @@
-{% set state_id_prefix = "salt_minion.provisioning_init" %}
+{% set state_id_prefix = "salt_minion.basics" %}
 {% set hostname = salt['grains.get']('id') %}
 {% set ip = salt['grains.get']('ipv4')[0] %}
 
