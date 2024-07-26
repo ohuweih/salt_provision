@@ -15,6 +15,9 @@ def get_instance_id_by_ip(ip_address, region):
 
 
 def get_security_group_ids_by_names(region, group_names):
+    """
+    Get the SG ID based a list of names.
+    """
     ec2 = boto3.client('ec2', region_name=region)
     response = ec2.describe_security_groups(Filters=[{'Name': 'group-name', 'Values': group_names}])
     security_group_ids = [group['GroupId'] for group in response['SecurityGroups']]
@@ -22,6 +25,9 @@ def get_security_group_ids_by_names(region, group_names):
 
 
 def modify_instance_sg(region, instance_id, security_group_names):
+    """
+    Add SGs to newly provisioned instance.
+    """
     ec2 = boto3.client('ec2', region_name=region)
     print(f"Modifying instance {instance_id} in region {region} with security groups {security_group_names}")    
     # Get the current security groups of the instance
@@ -44,6 +50,9 @@ def modify_instance_sg(region, instance_id, security_group_names):
 
 
 def tag_instance(region, instance_id, tags):
+    """
+    Add Tags to newly provisioned instance.
+    """
     ec2 = boto3.client('ec2', region_name=region)
     tag_list =[]
     for key, value in tags.items():
