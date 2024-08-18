@@ -10,6 +10,14 @@
 {% endif %}
 
 
+{% if 'apache' in id %}
+{{ state_id_prefix }}_set_role_grain:
+  grains.present:
+    - name: role
+    - value: apache
+{% endif %}
+
+
 {{ state_id_prefix }}_set_hostname_grain:
   grains.present:
     - name: hostname
