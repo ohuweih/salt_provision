@@ -2,7 +2,7 @@ provision_instance:
   salt.runner:
     - name: cloud.profile
     - prof: rhel_t2 
-    - instances: testing_multimaster_apache
+    - instances: testing_apache
     - async: True
 
 
@@ -10,7 +10,7 @@ apply_provisioning_state:
   salt.state:
     - tgt_type: list
     - tgt: 
-      - testing_multimaster_apache
+      - testing_apache
     - sls:
       - salt_minion.basics
     - require:
@@ -21,7 +21,7 @@ apply_highstate:
   salt.state:
     - tgt_type: list
     - tgt:
-      - testing_multimaster_apache
+      - testing_apache
     - highstate: True
     - require:
       - salt: apply_provisioning_state
@@ -31,5 +31,5 @@ apply_highstate_2:
   salt.state:
     - tgt_type: list
     - tgt:
-      - testing_multimaster_apache
+      - testing_apache
     - highstate: True
