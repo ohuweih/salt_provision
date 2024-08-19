@@ -2,16 +2,12 @@
 {% set id = salt['grains.get']('id') %}
 
 
-{% if 'master' in id %}
 {{ state_id_prefix }}_set_role_grain:
+{% if 'master' in id %}
   grains.present:
     - name: role
     - value: salt_master
-{% endif %}
-
-
-{% if 'apache' in id %}
-{{ state_id_prefix }}_set_role_grain:
+{% elif %}
   grains.present:
     - name: role
     - value: apache
