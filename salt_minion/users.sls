@@ -15,3 +15,4 @@
     - source: salt://salt_minion/files/ohuweih_id_rsa.pub
     - user: ohuweih
     - mode: 0600
+    - makedirs: True
