@@ -11,6 +11,10 @@
   grains.present:
     - name: role
     - value: apache
+{% elif 'oracle' in id %}
+  grains.present:
+    - name: role
+    - value: oracle
 {% endif %}
 
 
