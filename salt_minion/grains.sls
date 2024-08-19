@@ -7,7 +7,7 @@
   grains.present:
     - name: role
     - value: salt_master
-{% elif %}
+{% elif 'apache' in id %}
   grains.present:
     - name: role
     - value: apache
