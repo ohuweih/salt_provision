@@ -1,4 +1,4 @@
-{% set state_id_prefix = salt_minion.users %}
+{% set state_id_prefix = 'salt_minion.users' %}
 
 {{ state_id_prefix }}_manage_user:
   user.present:
