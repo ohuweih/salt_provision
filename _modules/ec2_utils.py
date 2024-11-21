@@ -1,7 +1,7 @@
 import boto3
 
 
-def get_instance_id_by_ip(ip_address, region):
+def get_instance_id_by_ip(ip_address, region='us-east-1'):
     """
     Get the instance ID based on the private IP address.
     """
@@ -14,20 +14,14 @@ def get_instance_id_by_ip(ip_address, region):
     return None
 
 
-def get_security_group_ids_by_names(region, group_names):
-    """
-    Get the SG ID based a list of names.
-    """
+def get_security_group_ids_by_names(group_names, region='us-east-1'):
     ec2 = boto3.client('ec2', region_name=region)
     response = ec2.describe_security_groups(Filters=[{'Name': 'group-name', 'Values': group_names}])
     security_group_ids = [group['GroupId'] for group in response['SecurityGroups']]
     return security_group_ids
 
 
-def modify_instance_sg(region, instance_id, security_group_names):
-    """
-    Add SGs to newly provisioned instance.
-    """
+def modify_instance_sg(instance_id, security_group_names, region='us-east-1'):
     ec2 = boto3.client('ec2', region_name=region)
     print(f"Modifying instance {instance_id} in region {region} with security groups {security_group_names}")    
     # Get the current security groups of the instance
@@ -49,10 +43,7 @@ def modify_instance_sg(region, instance_id, security_group_names):
     return response
 
 
-def tag_instance(region, instance_id, tags):
-    """
-    Add Tags to newly provisioned instance.
-    """
+def tag_instance(instance_id, tags, region='us-east-1'):
     ec2 = boto3.client('ec2', region_name=region)
     tag_list =[]
     for key, value in tags.items():
@@ -60,3 +51,31 @@ def tag_instance(region, instance_id, tags):
     print(f"printing tag_list {tag_list}")
     response = ec2.create_tags(Resources=[instance_id], Tags=tag_list)
     return response
+
+
+def createScalingTarget(resourceId, minContainers, maxContainers, region='us-east-1'):
+    client = boto3.client('application-autoscaling', region_name=region)
+    response = client.register_scalable_target(
+        ServiceNamespace= "ecs",
+        ResourceId=resourceId,
+        MinCapacity=minContainers,
+        MaxCapacity=maxContainers,
+        ScalableDimension="ecs:service:DesiredCount"
+    )
+
+
+def createScalingPolicy(policyName, resourceId, autoScalingTargetValue, region='us-east-1'):
+    client = boto3.client('application-autoscaling', region_name=region)
+    response = client.put_scaling_policy(
+        PolicyName=policyName,
+        PolicyType="TargetTrackingScaling",
+        ResourceId=resourceId,
+        TargetTrackingScalingPolicyConfiguration= {
+            "PredefinedMetricSpecification" : {
+                "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+            },
+            "ScaleOutCooldown": 10,
+            "ScaleInCooldown": 10,
+            "TargetValue": autoScalingTargetValue
+        }
+    )

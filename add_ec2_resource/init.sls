@@ -1,22 +1,16 @@
-{% set env = salt['grains.get']('env') %}
+{% set env = "dev" %}
 {% set ip_address = salt['grains.get']('ipv4')[0] %}
-{% set region = 'us-east-2' %}
-{% set id = salt['grains.get']('id') %}
+{% set region = 'us-east-1' %}
+{% set id = grains['id'] %}
 {% set instance_id = salt['ec2_utils.get_instance_id_by_ip'](ip_address, region) %}
-
-
 {% set tags = {
     'HostName': id,
-    'Data_Classification': 'False',
     'Environment': env,
     'OS': 'RHEL8.9',
     'PatchGroup': 'RHEL',
-    'Backup': 'True'
+    'Project': 'gaies-pe',
+    'ManagedBy': 'Salt'
 } %}
-
-{% if 'http' in id %}
-    {% set tags = tags.update({'Application': 'http'}) %}
-{% endif %}
 
 
 
@@ -28,10 +22,7 @@
     - name: ec2_utils.modify_instance_sg
     - region: {{ region }}
     - instance_id: {{ instance_id }}
-    - security_group_names:
-      - gaies-common-scg-id
-      - gaies-{{ env }}-scg-id
-      - gaies-{{ env }}-scg-id_testing_this
+    - security_group_names: {{ pillar['security_group_names'] }}
 
 
 {{ state_id_prefix }}_tag_instance:
