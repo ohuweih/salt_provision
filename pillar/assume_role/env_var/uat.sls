@@ -1,0 +1,1 @@
+roleArn: "arn:aws:iam::324053739222:role/gaies-npd-pe-automation-role"

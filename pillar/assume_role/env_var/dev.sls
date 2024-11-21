@@ -1,0 +1,1 @@
+roleArn: "arn:aws:iam::613398752565:role/gaies-dev-pe-automation-role"
