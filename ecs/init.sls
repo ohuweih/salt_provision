@@ -2,19 +2,13 @@
 
 {% if pillar['ecsClusters'] is defined %}
 {% set ecsClusters = pillar['ecsClusters'] %}
+{% set env = salt['grains.get']('env') %}
+
+{% for ecsCluster in ecsClusters %} 
 {% if ecsCluster.ecsServices  is defined %}
 {% set ecsServices = ecsCluster.ecsServices %}
 {% if ecsCluster.ecsTasks  is defined %}
 {% set ecsTasks = ecsCluster.ecsTasks %}
-{% set env = salt['grains.get']('env') %}
-
-{% for ecsCluster in ecsClusters %} 
-
-
-{{state_id_prefix}}_create_ecs_log_group:
-  module.run:
-    - name: cloudwatch_utils.createLogGroup
-    - logGroupName: {{ ecsCluster.serviceName }}_{{ecsCluster.taskDefinition }}/ecs/
 
 
 ### create ECS cluster, task, and service. in that order ###
@@ -28,12 +22,19 @@
 
 {% for ecsTask in ecsTasks %}
 
+
+{{state_id_prefix}}_create_ecs_log_group_{{ ecsTask.taskDefinition }}:
+  module.run:
+    - name: cloudwatch_utils.createLogGroup
+    - logGroupName: {{ ecsTask.taskDefinition }}_{{ ecsTask.serviceName }}_/ecs/
+
+
 {{state_id_prefix}}_create_task_def_{{ ecsTask.taskDefinition }}:
   module.run:
     - name: ecs_utils.createTaskDefinition
     - taskDefinition: {{ ecsTask.taskDefinition }}
     - tags: {{ ecsTask.taskTags | tojson }}
-    - serviceName: {{ ecsTask.serviceName }}
+    - serviceName: gaies-pe-{{env}}-{{ ecsTask.serviceName }}
     - image: {{ ecsTask.image }}
     - containerPort: {{ ecsTask.containerPort }}
     - logGroup: {{ ecsTask.logGroup }}
@@ -47,30 +48,36 @@
 
 {% for ecsService in ecsServices %}
 
-{{state_id_prefix}}_create_service_{{ ecsServices.serviceName }}:
+{{state_id_prefix}}_create_service_{{ ecsService.serviceName }}:
   module.run:
     - name: ecs_utils.createService
-    - serviceName: gaies-pe-uat-{{ ecsService.serviceName }}
-    - taskDefinition: {{ ecsService.taskDefinition }}:0
+    - serviceName: gaies-pe-{{env}}-{{ ecsService.serviceName }}
+    - taskDefinition: {{ ecsService.taskDefinition }}
     - clusterName: {{ ecsService.clusterName }}
+    - desiredCount: {{ ecsService.desiredCount }}
     - containerPort: {{ ecsService.containerPort }}
-    - targetGroup: {{ecsService.targetGroup }}
-    - subnetA: {{ ecsService.subnetA }}
-    - subnetB: {{ ecsService.subnetB }}
+    - targetGroup: {{ salt['grains.get'](ecsService.targetGroup) }}
+    - subnets: {{ ecsService.subnets }}
     - tags: {{ ecsService.ecsServiceTags | tojson }}
-    - containerSecGrp: {{ ecsService.containerSecGrp }}
+    - containerSecGrp: {{  ecsService.containerSecGrp }}
 
 
-{{state_id_prefix}}_create_auto_scaling_{{ ecsService.serviceName }}
+{{state_id_prefix}}_create_auto_scaling_{{ ecsService.serviceName }}:
   module.run:
     - name: ec2_utils.createScalingTarget
     - resourceId: service/{{ecsService.clusterName}}/gaies-pe-{{ env }}-{{ ecsService.serviceName }}
     - minContainers: {{ ecsService.minContainers }}
     - maxContainers: {{ ecsService.maxContainers }}
-{% endfor %}
 
 
+{{state_id_prefix}}_put_auto_scaling_{{ ecsService.serviceName }}:
+  module.run:
+    - name: ec2_utils.putScalingTarget
+    - resourceId: service/{{ecsService.clusterName}}/gaies-pe-{{ env }}-{{ ecsService.serviceName }}
+    - policyName: gaies-pe-{{ env }}-{{ ecsService.serviceName }}-asp
 {% endfor %}
+
 {% endif %}
 {% endif %}
+{% endfor %}
 {% endif %}

@@ -79,3 +79,20 @@ def createScalingPolicy(policyName, resourceId, autoScalingTargetValue, region='
             "TargetValue": autoScalingTargetValue
         }
     )
+
+
+def putScalingTarget(resourceId, policyName):
+    client = boto3.client('application-autoscaling', region_name='us-east-1')
+    response = client.put_scaling_policy(
+        PolicyName=policyName,
+        ServiceNamespace='ecs',
+        ResourceId=resourceId,
+        ScalableDimension='ecs:service:DesiredCount',
+        PolicyType='TargetTrackingScaling',
+        TargetTrackingScalingPolicyConfiguration={
+            'TargetValue': 80,
+            'PredefinedMetricSpecification': {
+                'PredefinedMetricType': 'ECSServiceAverageCPUUtilization'
+                }
+        }
+    )

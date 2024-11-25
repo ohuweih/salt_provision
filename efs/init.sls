@@ -16,6 +16,7 @@
     - ipAddress: {{efsValue.ipAddress }}
     - securityGroups: {{ efsValue.secGrps }}
     - backup: {{ efsValue.backup }}
+    - tags: {{ efsValue.tags }}
 
 
 {% endfor %}

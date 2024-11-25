@@ -4,6 +4,21 @@
 {% set secgrps = pillar['secgrps'] %}
 {% for secgrp in secgrps %}
 
+
+{{ state_id_prefix }}_create_{{ secgrp.name }}:
+  boto_secgroup.present:
+    - name: {{ secgrp.name }}
+    - description: {{ secgrp.description }}
+    - vpc_id: {{ secgrp.vpc }}
+    - tags: {{ secgrp.tags | tojson }}
+    - region: us-east-1
+
+
+{{ state_id_prefix }}_slow_it_down {{secgrp.name}}:
+  cmd.run:
+    - name: sleep 2
+
+
 {{ state_id_prefix }}_set_secgrp_{{ secgrp.name }}:
   boto_secgroup.present:
     - name: {{ secgrp.name }}
@@ -11,33 +26,28 @@
     - vpc_id: {{ secgrp.vpc }}
     - rules:
       {% for rule in secgrp.rules %}
-      {% if rule.cidrIp is defined %}
       - ip_protocol: {{ rule.ipProtocol }}
         from_port: {{ rule.fromPort }}
         to_port: {{ rule.toPort}}
+      {% if rule.cidrIp is defined %}
         cidr_ip: {{ rule.cidrIp }}
-        description: {{ rule.description}}
+      {% else %}
+        source_group_name: {{ rule.sourceGroupName }}
       {% endif %}
       {% endfor %}
-    - tags: {{ secgrp.tags | tojson }}
+    - tags: {{ secgrp.tags }}
     - region: us-east-1
 
-{{ state_id_prefix }}_set_secgrp_take2_{{ secgrp.name }}:
-  boto_secgroup.present:
+
+{{ state_id_prefix }}_slow_it_down_again_{{secgrp.name}}:
+  cmd.run:
+    - name: sleep 2
+
+{{ state_id_prefix }}_get_arn_{{ secgrp.name }}:
+  grains.present:
     - name: {{ secgrp.name }}
-    - description: {{ secgrp.description }}
-    - vpc_id: {{ secgrp.vpc }}
-    - rules:
-      {% for rule in secgrp.rules %}
-      {% if rule.sourceGroupName is defined %}
-      - ip_protocol: {{ rule.ipProtocol }}
-        from_port: {{ rule.fromPort }}
-        to_port: {{ rule.toPort}}
-        source_group_name: {{ rule.sourceGroupName }}
-        description: {{ rule.description}}
-      {% endif %}
-      {% endfor %}
-    - tags: {{ secgrp.tags | tojson }}
-    - region: us-east-1
+    - value: {{ salt['boto_secgroup.get_group_id'](secgrp.name) }}
+    - force: True
+
 {% endfor %}
 {% endif %}

@@ -46,11 +46,11 @@ def createTaskDefinition(taskDefinition, tags, serviceName, image, hostPort, con
     try:
         print(f"Checking if {taskDefinition} exists")
         checkTask = client.describe_task_definition(
-            taskDefinition='gaies-pe-dev-salt-boss-mode',
+            taskDefinition=taskDefinition,
         )
         taskData = checkTask['taskDefinition']['containerDefinitions'][0]
         print(f"Ensuring task {taskDefinition} is up to date with Pillar Data")
-        if taskData['image'] != image or taskData['portMappings'][0]['containerPort'] != containerPort or checkTask['taskDefinition']['requiresCompatibilities'] != requiresCompatibilities:
+        if taskData['image'] != image or taskData['portMappings'][0]['containerPort'] != containerPort or checkTask['taskDefinition']['requiresCompatibilities'] != requiresCompatibilities or envVar != checkTask['taskDefinition']['containerDefinitions'][0]['environment']:
             print(f"Updating task {taskDefinition}")
             response = client.register_task_definition(
                 family=taskDefinition,
@@ -136,38 +136,60 @@ def createTaskDefinition(taskDefinition, tags, serviceName, image, hostPort, con
         print(response)
 
 
-def createService(serviceName, taskDefinition, clusterName, containerPort, targetGroup, subnetA, subnetB, tags, containerSecGrp, region="us-east-1"):
+def createService(serviceName, taskDefinition, clusterName, containerPort, targetGroup, subnets, desiredCount, tags, containerSecGrp, region="us-east-1"):
     tag_list = [{'key': key, 'value': value} for key, value in tags.items()]
     client = boto3.client('ecs', region_name=region)
     try:
-        print(f"service {serviceName} does not exist, Creating")
-        response = client.update_service(
+        describe_service = client.describe_services(
+            cluster=clusterName,
+            services=[serviceName],
+            )
+        if describe_service['services'][0]['serviceArn']:
+            print("Updating Service")
+            response = client.update_service(
+            cluster=clusterName,
+            service=serviceName,
+            taskDefinition=taskDefinition,
+            deploymentConfiguration={
+                "minimumHealthyPercent": 100,
+                "maximumPercent": 200
+            },
+            desiredCount=desiredCount,
+            healthCheckGracePeriodSeconds=30,
+            networkConfiguration={
+                "awsvpcConfiguration" : {
+                    "assignPublicIp": "DISABLED",
+                    "subnets": subnets,
+                    "securityGroups" : containerSecGrp
+                }
+            },
+            loadBalancers=[
+                {
+                    "containerName": serviceName,
+                    "containerPort": containerPort,
+                    "targetGroupArn": targetGroup
+                }
+            ]
+            )
+            return response
+    except Exception as e:
+        print("Creating Service")
+        create_service = client.create_service(
         cluster=clusterName,
         serviceName=serviceName,
         taskDefinition=taskDefinition,
+        launchType='FARGATE',
         deploymentConfiguration={
             "minimumHealthyPercent": 100,
             "maximumPercent": 200
         },
-        desiredCount=2,
+        desiredCount=desiredCount,
         healthCheckGracePeriodSeconds=30,
-        capacityProviderStrategy=[
-            {
-                'capacityProvider': 'FARGATE',
-                'weight': 2,
-                'base': 2
-            },
-        ],
         networkConfiguration={
             "awsvpcConfiguration" : {
                 "assignPublicIp": "DISABLED",
-                "subnets": [
-                    subnetA,
-                    subnetB,
-                ],
-                "securityGroups" : [
-                    containerSecGrp
-                ]
+                "subnets": subnets,
+                "securityGroups" : containerSecGrp
             }
         },
         loadBalancers=[
@@ -177,7 +199,6 @@ def createService(serviceName, taskDefinition, clusterName, containerPort, targe
                 "targetGroupArn": targetGroup
             }
         ]
-    )
-    except Exception as e:
-        print(e)
-        return False
+        )
+        print(create_service)
+        return create_service

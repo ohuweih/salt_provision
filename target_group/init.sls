@@ -19,6 +19,7 @@
     - health_check_interval_seconds: {{ targetGroup.interval }}
     - health_check_path: {{ targetGroup.healthCheckPath }}
     - vpc_id: {{ targetGroup.vpc }}
+    - tags: {{ targetGroup.tags }}
 
 {% endfor %}
 {% endif %}

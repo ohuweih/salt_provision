@@ -12,11 +12,13 @@
     - loadBalancerName: {{ loadBalancer.loadBalancerName }}
     - scheme: {{loadBalancer.scheme}}
     - subnets: {{ loadBalancer.subnets }}
-    - securityGroups: {{ loadBalancer.securityGroups}}
-    - defaultTargetGroupArn: arn:aws:elasticloadbalancing:us-east-1:{{ loadBalancer.account }}:targetgroup/{{ loadBalancer.defaultTargetGroup }}
+    - securityGroups: {{ loadBalancer.securityGroups }}
+    - defaultTargetGroupArn: {{ salt['grains.get'](loadBalancer.defaultTargetGroup) }}
     - protocol: {{ loadBalancer.protocol }}
     - port: {{ loadBalancer.port }}
     - certificateArn: {{ loadBalancer.certificateArn }}
+    - lbTags: {{ loadBalancer.loadBalancerTags }}
+    - lrTags: {{ loadBalancer.listenerTags }}
 
 
 {% for rule in loadBalancer.rules %}
@@ -24,19 +26,19 @@
   module.run:
     - name: load_balancer_utils.create_rule
     - priority: {{ rule.priority }}
+    - loadBalancerName: {{ loadBalancer.loadBalancerName }}
     - sticky: {{rule.sticky}}
     - tags: {{ rule.tags }}
     {% if rule.hostHeader is defined and rule.method is defined %}
     - hostHeader: {{ rule.hostHeader }}
     - method: {{ rule.method }}
-    {% elif %}
-    {% if rule.hostHeader is defined %}
+    {% elif rule.hostHeader is defined %}
     - hostHeader: {{ rule.hostHeader }}
     {% else %}
     - method: {{ rule.method }}
     {% endif %}
-    - targetGroupArn: arn:aws:elasticloadbalancing:us-east-1:{{ loadBalancer.account }}:targetgroup/{{ rule.targetGroupName }}
-
+    - targetGroupArn: {{ salt['grains.get'](rule.targetGroupName) }}
+    - tags: {{ rule.tags }}
 {% endfor %}
 {% endfor %}
 {% endif %}
