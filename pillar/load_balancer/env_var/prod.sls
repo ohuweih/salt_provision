@@ -1,36 +1,44 @@
 loadBalancers:
-  - loadBalancerName: "gaies-pe-prd-LoadBalancer"
+  - loadBalancerName: "gaies-pe-prod-LoadBalancer"
     securityGroups:
-      - gaies-pe-prd-ecs-fargate-LoadBalancerSecurityGroup
+      - {{ salt['grains.get']('gaies-pe-prod-ecs-fargate-LoadBalancerSecurityGroup') }}
     subnets:
-      - subnet-0a3f7d83e051e9605
       - subnet-04300f88d58e0f7de
+      - subnet-0a3f7d83e051e9605
     listeners:
     port: 443
     protocol: HTTPS
     certificateArn: arn:aws:acm:us-east-1:845537639440:certificate/659364a8-ec6e-4349-8e54-2dd4d3216f1a
     scheme: internal
     account: 845537639440
-    defaultTargetGroup: gaies-pe-prd-flask-targetgroup/###
-    listenerTags:  {"Name": "gaies-pe-prd-LoadBalancer", "Environment": "prd", "ManagedBy": "Salt", "Project": "gaies-pe"}
-    loadBalancerTags: {"Name": "gaies-pe-prd-Listener", "Environment": "prd", "ManagedBy": "Salt", "Project": "gaies-pe"}
+    defaultTargetGroup: gaies-pe-prod-flask-targetgroup
+    listenerTags: 
+      - {"Key":"Name", "Value": "gaies-pe-prod-LR"} 
+      - {"Key": "Environment", "Value": "prod"}
+      - {"Key": "Manageby", "Value": "Salt"} 
+      - {"Key": "Project", "Value": "gaies-pe"}
+    loadBalancerTags:
+      - {"Key":"Name", "Value": "gaies-pe-prod-LB"} 
+      - {"Key": "Environment", "Value": "prod"}
+      - {"Key": "Manageby", "Value": "Salt"} 
+      - {"Key": "Project", "Value": "gaies-pe"}
     rules:
       - name: a
-        targetGroupName: gaies-pe-prd-flask-targetgroup/###
+        targetGroupName: gaies-pe-prod-flask-targetgroup
         method:
           - POST
           - OPTIONS
         sticky: True
         priority: 100
         tags:
-          - {'Key:' 'Name','Value': 'gaies-pe-prd-flask-rule'}
+          - {"Key": "Name", "Value": "gaies-pe-prod-flask-rule"}
         hostHeader:
-          - policyprd.tools.gateway.ga.gov
+          - policyprod.tools.gateway.ga.gov
       - name: b
-        targetGroupName: gaies-pe-prd-targetgroup/####
-        tags:
-          - {'Key:' 'Name','Value': 'gaies-pe-prd-rule'}
+        targetGroupName: gaies-pe-prod-targetgroup
         hostHeader:
-          - policyprd.tools.gateway.ga.gov
+          - policyprod.tools.gateway.ga.gov
         sticky: False
         priority: 110
+        tags:
+          - {"Key": "Name", "Value": "gaies-pe-prod-ui-rule"}

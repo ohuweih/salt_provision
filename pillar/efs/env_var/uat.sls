@@ -1,5 +1,5 @@
 efsValues:
-  - name: gaies-pe-uat
+  - name: gaies-pe-uat-efs
     performanceMode: generalPurpose
     encrypted: True
     backup: True
@@ -7,5 +7,9 @@ efsValues:
     subnetId: subnet-069804bbc925145c1
     ipAddress: 10.146.74.60
     secGrps:
-      - sg-054ab897d69030fea
-    tags: {"Name": "gaies-pe-uat", "Environment": "uat", "Project": "gaies-pe", "Manageby": "Salt"}
+      - {{ salt['grains.get']('gaies-pe-uat-common-scg') }}
+    tags: 
+      - {"Key": "Name", "Value": "gaies-pe-uat"}
+      - {"Key": "Environment", "Value": "uat"} 
+      - {"Key":"Project", "Value": "gaies-pe"} 
+      - {"Key":"Manageby", "Value": "Salt"}

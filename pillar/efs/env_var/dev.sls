@@ -7,5 +7,5 @@ efsValues:
     subnetId: subnet-01a10c7f987c696ea
     ipAddress: a ip from the subnet picked. 
     secGrps:
-      - sg-007cfa763299cd307 
+      - {{ salt['grains.get']('gaies-pe-dev-pipeline-test-5') }}
     tags: {"Name": "gaies-pe-dev-salt-test", "vpc": "vpc-0ab445d0a2c633df4", "Environment": "Dev", "Project": "gaies-pe", "Manageby": "Salt"}

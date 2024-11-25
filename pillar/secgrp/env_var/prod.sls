@@ -58,6 +58,11 @@ secgrps:
         toPort: -1
         sourceGroupName: gaies-pe-prd-common-scg
         description: Self
+      - ipProtocol: all
+        fromPort: -1
+        toPort: -1
+        cidrIp: 10.146.105.6/28
+        description: Salt Master
     tags: {"Name": "gaies-pe-prd-common-scg", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prd", "ManagedBy": "Salt", "Project": "gaies-pe"}
 
   - name: gaies-pe-prd-ecs-fargate-LoadBalancerSecurityGroup

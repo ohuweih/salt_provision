@@ -58,6 +58,11 @@ secgrps:
         toPort: -1
         sourceGroupName: gaies-pe-uat-common-scg
         description: Self
+      - ipProtocol: all
+        fromPort: -1
+        toPort: -1
+        cidrIp: 10.146.105.6/28
+        description: Salt Master
     tags: {"Name": "gaies-pe-uat-common-scg", "vpc": "vpc-0ab445d0a2c633df4", "ManagedBy": "Salt", "Project": "gaies-pe"}
 
   - name: gaies-pe-uat-ecs-fargate-LoadBalancerSecurityGroup
@@ -207,7 +212,7 @@ secgrps:
         description: Self
     tags: {"Name": "gaies-pe-uat-ecs-fargate-ContainerSecurityGroup", "Environment": "uat", "Project": "gaies-pe", "Manageby": "Salt"}
 
-  - name: gaies-pe-common-scg-new
+  - name: gaies-pe-uat-common-scg-2
     description: "Common secgrp for gaies pe"
     vpc: vpc-0e87a15866e00bb75 
     rules:
@@ -254,6 +259,6 @@ secgrps:
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-common-scg-new
+        sourceGroupName: gaies-pe-uat-common-scg-2
         description: Self
-    tags: {"Name": "gaies-pe-common-scg-new", "Environment": "uat", "Project": "gaies-pe", "Manageby": "Salt"}
+    tags: {"Name": "gaies-pe-uat-common-scg-2", "Environment": "uat", "Project": "gaies-pe", "Manageby": "Salt"}

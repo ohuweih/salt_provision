@@ -1,26 +1,64 @@
-ecsValues:
-  - clusterName: gaies-pe-dev-ecs-cluster-SaltFinale-Test
-    region: us-east-1
-    subnetA: subnet-0fd6659530eaac52f
-    subnetB: subnet-0b43adeda2af5d8dc
-    containerSecGrp: "sg-0c2060fbeab24f1b8" ### this can be a list if needs to be ###
-    serviceName: gaies-pe-dev-ecs-ui-SaltFinale-Test
-    containerPort: 80
-    certificate: 'arn:aws:acm:us-east-1:613398752565:certificate/59962212-e932-47bb-8428-1d8bada3f827'
-    taskDefinition: gaies-pe-dev-ecs-ui_TaskDefinition-SaltFinale-Test
-    resourceId: gaies-pe-dev-ecs-ui-SALT
-    minContainers: 0
-    maxContainers: 4
-    autoScalingRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-role'
-    policyName: gaies-pe-dev-ecs-ui_AutoScalingPolicy
-    autoScalingTargetValue: 50
-    taskRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
-    executionRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
-    requiresCompatibilities:
-      - FARGATE
-    image: '613398752565.dkr.ecr.us-east-1.amazonaws.com/pacman:latest'
-    logRegion:
-    logGroup: /ecs/gaies-pe-dev-ecs-ui_TaskDefinition
-    taskTags: {"Name": "gaies-pe-dev-ecs-ui_TaskDefinition-Salt-Test", "Environment": "Dev", "Manageby": "Salt", "Deletethis": "True" }
-    ecsServiceTags: {"Name": "gaies-pe-dev-ecs-ui-Salt-Test", "Environment": "Dev", "Manageby": "Salt", "Deletethis": "True" }
-    clusterTags: {"Name": "gaies-pe-dev-ecs-cluster-Salt-Test", "Environment": "Dev", "Manageby": "Salt", "Deletethis": "True" }
+ecsClusters:
+  - clusterName: gaies-pe-dev-gitlab-cluster
+    clusterTags: {"Name": "gaies-pe-dev-gitlab-cluster", "Environment": "dev", "Manageby": "Salt"}
+    ecsTasks:
+      - taskDefinition: gaies-pe-dev-flask-gitlab
+        taskTags: {"Name": "gaies-pe-dev-flask-gitlab", "Environment": "dev", "Manageby": "Salt"}
+        serviceName: flask
+        containerPort: 5000
+        hostPort: 5000
+        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-backend:latest'
+        logGroup: gaies-pe-dev-ecs-flask-gitlab
+        taskRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
+        executionRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
+        envVar: 
+          - {"name": "weaviate_hostname","value": "ip-10-146-74-4.ec2.internal"}
+          - {"name": "oracle_hostname","value": "ip-10-146-74-134.ec2.internal"}
+          - {"name": "oracle_service", "value": "IESPEUT1"}
+        credentialsParameter: arn:aws:secretsmanager:us-east-1:613398752565:secret:PolicyEngine/gitlab-backend-FfvpBL
+
+      - taskDefinition: gaies-pe-dev-ui-gitlab
+        taskTags: {"Name": "gaies-pe-dev-ui-gitlab", "Environment": "dev", "Manageby": "Salt"}
+        serviceName: flask
+        containerPort: 443
+        hostPort: 443
+        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-backend:latest'
+        logGroup: gaies-pe-dev-ecs-ui-gitlab
+        taskRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
+        executionRole: 'arn:aws:iam::613398752565:role/gaies-dev-pe-ecs-taskexecution-role'
+        envVar: 
+          - {"name": "weaviate_hostname","value": "ip-10-146-74-4.ec2.internal"}
+          - {"name": "oracle_hostname","value": "ip-10-146-74-134.ec2.internal"}
+          - {"name": "oracle_service", "value": "IESPEUT1"}
+        credentialsParameter: arn:aws:secretsmanager:us-east-1:613398752565:secret:PolicyEngine/gitlab-ui-7epRaO
+
+    ecsServices:
+      - serviceName: flask
+        taskDefinition: gaies-pe-dev-flask-gitlab:1
+        clusterName: gaies-pe-dev-gitlab-cluster
+        targetGroup: gaies-pe-flask-gitlab-pl
+        containerPort: 5000
+        minContainers: 2
+        maxContainers: 4
+        desiredCount: 2
+        ecsServiceTags: {"Name": "gaies-pe-dev-ecs-ui-gitlab", "Environment": "dev", "Manageby": "Salt"}
+        subnets:
+          - subnet-0c9c6067d938a27cd
+          - subnet-01a10c7f987c696ea
+        containerSecGrp:
+          - {{ salt['grains.get']('gaies-pe-dev-ecs-fargate-ContainerSecurityGroup-gitlab-pipeline-deploy')}}
+
+      - serviceName: ui
+        taskDefinition: gaies-pe-dev-ui-gitlab:1
+        clusterName: gaies-pe-dev-gitlab-cluster
+        targetGroup: gaies-pe-gitlab-pl
+        containerPort: 443
+        minContainers: 2
+        maxContainers: 4 
+        desiredCount: 4
+        ecsServiceTags: {"Name": "gaies-pe-dev-ecs-ui-gitlab", "Environment": "dev", "Manageby": "Salt"}
+        subnets:
+          - subnet-0c9c6067d938a27cd
+          - subnet-01a10c7f987c696ea
+        containerSecGrp:
+          - {{ salt['grains.get']('gaies-pe-dev-ecs-fargate-ContainerSecurityGroup-gitlab-pipeline-deploy')}}

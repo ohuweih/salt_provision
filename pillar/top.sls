@@ -1,5 +1,6 @@
 base:
   "*":
+    - salt_cloud
     - ecr
     - assume_role
     - lambda

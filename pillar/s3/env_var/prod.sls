@@ -3,5 +3,5 @@ s3Buckets:
     tags: {"Name": "gaies-pe-prod", "ManagedBy": "Salt", "Project": "gaies-pe", "Environment": "prod"}
     versioning: Enabled
     loggingBucket: gaies-pe-prod-s3-access-logs
-    account: 845537639440
     functionName: gaies-pe-prod-backend-container
+    roleArn: {{ salt['grains.get']('gaies-pe-prod-backend-container') }}

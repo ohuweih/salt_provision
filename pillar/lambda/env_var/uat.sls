@@ -12,5 +12,6 @@ functions:
       - subnet-069804bbc925145c1
       - subnet-023848e4927027f73
     securityGroupIds:
-      - sg-054ab897d69030fea
+      - {{ salt['grains.get']('gaies-pe-uat-ecs-fargate-ContainerSecurityGroup') }}
+      - {{ salt['grains.get']('gaies-pe-uat-common-scg') }}
     tags: {"Name": "gaies-pe-uat-backend-container", "Environment": "uat", "Project": "gaies-pe", "ManagedBy": "Salt"}
