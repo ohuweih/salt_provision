@@ -9,8 +9,8 @@ ecsClusters:
         hostPort: 5000
         image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-backend:latest'
         logGroup: gaies-pe-uat-ecs-flask
-        taskRole: 'arn:aws:iam::324053739222:role/gaies-uat-pe-ecs-taskexecution-role'
-        executionRole: 'arn:aws:iam::324053739222:role/gaies-uat-pe-ecs-taskexecution-role'
+        taskRole: 'arn:aws:iam::324053739222:role/gaies-npd-pe-ecs-taskexecution-role'
+        executionRole: 'arn:aws:iam::324053739222:role/gaies-npd-pe-ecs-taskexecution-role'
         envVar: 
           - {"name": "weaviate_hostname","value": "ip-10-146-74-13.ec2.internal"}
           - {"name": "oracle_hostname","value": "ip-10-146-74-134.ec2.internal"}
@@ -21,12 +21,15 @@ ecsClusters:
         taskTags: {"Name": "gaies-pe-uat-ui", "Environment": "uat", "Manageby": "Salt"}
         serviceName: ui
         containerPort: 443
+        mountPoint:  [{"sourceVolume": "gaies-pe-uat-ui","containerPath": "/etc/ssl","readOnly": true}]
+        volume: [{"name": gaies-pe-uat-ui,"efsVolumeConfiguration": {"fileSystemId": {{ salt['grains.get']('gaies-pe-uat-ui') }},"rootDirectory": "/ssl"}}]
         hostPort: 443
-        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-backend:latest'
+        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-ui:uat'
         logGroup: gaies-pe-uat-ecs-ui
-        taskRole: 'arn:aws:iam::324053739222:role/gaies-uat-pe-ecs-taskexecution-role'
-        executionRole: 'arn:aws:iam::324053739222:role/gaies-uat-pe-ecs-taskexecution-role'
+        taskRole: 'arn:aws:iam::324053739222:role/gaies-npd-pe-ecs-taskexecution-role'
+        executionRole: 'arn:aws:iam::324053739222:role/gaies-npd-pe-ecs-taskexecution-role'
         envVar: 
+          - {"name": "force", "value": "true"}
           - {"name": "weaviate_hostname","value": "ip-10-146-74-13.ec2.internal"}
           - {"name": "oracle_hostname","value": "ip-10-146-74-134.ec2.internal"}
           - {"name": "oracle_service", "value": "IESPEUT1"}
@@ -34,7 +37,7 @@ ecsClusters:
 
     ecsServices:
       - serviceName: flask
-        taskDefinition: gaies-pe-uat-flask:23
+        taskDefinition: gaies-pe-uat-flask:28
         clusterName: gaies-pe-uat-cluster
         targetGroup: gaies-pe-uat-flask-targetgroup
         containerPort: 5000
@@ -47,9 +50,10 @@ ecsClusters:
           - subnet-023848e4927027f73
         containerSecGrp:
           - {{ salt['grains.get']('gaies-pe-uat-ecs-fargate-ContainerSecurityGroup')}}
+          - {{ salt['grains.get']('gaies-pe-uat-common-scg')}}
 
       - serviceName: ui
-        taskDefinition: gaies-pe-uat-ui:2
+        taskDefinition: gaies-pe-uat-ui:10
         clusterName: gaies-pe-uat-cluster
         targetGroup: gaies-pe-uat-targetgroup
         containerPort: 443
@@ -62,3 +66,4 @@ ecsClusters:
           - subnet-023848e4927027f73
         containerSecGrp:
           - {{ salt['grains.get']('gaies-pe-uat-ecs-fargate-ContainerSecurityGroup')}}
+          - {{ salt['grains.get']('gaies-pe-uat-common-scg')}}

@@ -22,12 +22,14 @@ ecsClusters:
         serviceName: ui
         containerPort: 443
         hostPort: 443
-        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-backend:latest'
+        mountPoint:  [{"sourceVolume": "gaies-pe-prod","containerPath": "/etc/ssl","readOnly": true}]
+        volume: [{"name": gaies-pe-prod,"efsVolumeConfiguration": {"fileSystemId": {{ salt['grains.get']('gaies-pe-prod') }},"rootDirectory": "/ssl"}}]
+        image: 'registry.gitlab.com/gadhs/ai-policy-engine/gen-ai-policy-engine-ui:prod'
         logGroup: gaies-pe-prod-ecs-ui
         taskRole: arn:aws:iam::845537639440:role/gaies-pe-prod-ecs-taskexecution-role
         executionRole: arn:aws:iam::845537639440:role/gaies-pe-prod-ecs-taskexecution-role
         envVar: 
-          - {"name": "weaviate_hostname","value": ""}
+          - {"name": "weaviate_hostname","value": "ip-10-146-75-13.ec2.internal"}
           - {"name": "oracle_hostname","value": "ip-10-146-75-136.ec2.internal"}
           - {"name": "oracle_service", "value": "IESPEUT1"}
         credentialsParameter: arn:aws:secretsmanager:us-east-1:845537639440:secret:PolicyEngine/gitlab-ui-5PhIAG
@@ -46,10 +48,10 @@ ecsClusters:
           - subnet-0a3f7d83e051e9605
           - subnet-04300f88d58e0f7de
         containerSecGrp:
-          - {{ salt['grains.get']('gaies-pe-prod-ecs-fargate-ContainerSecurityGroup')}}
+          - {{ salt['grains.get']('gaies-pe-prod-common-scg') }}
 
       - serviceName: ui
-        taskDefinition: gaies-pe-prod-ui:1
+        taskDefinition: gaies-pe-prod-ui:2
         clusterName: gaies-pe-prod-cluster
         targetGroup: gaies-pe-prod-targetgroup
         containerPort: 443
@@ -61,4 +63,4 @@ ecsClusters:
           - subnet-0a3f7d83e051e9605
           - subnet-04300f88d58e0f7de
         containerSecGrp:
-          - {{ salt['grains.get']('gaies-pe-prod-ecs-fargate-ContainerSecurityGroup')}}
+          - {{ salt['grains.get']('gaies-pe-prod-common-scg') }}

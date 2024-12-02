@@ -1,5 +1,5 @@
 secgrps:
-  - name: gaies-pe-prd-common-scg
+  - name: gaies-pe-prod-common-scg
     description: "Common secgrp for gaies pe"
     vpc: vpc-0da4036c07a04d82b
     rules:
@@ -52,20 +52,24 @@ secgrps:
         fromPort: -1
         toPort: -1
         cidrIp: 10.146.75.0/24
-        description: PE prd VPC
+        description: PE prod VPC
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-prd-common-scg
+        sourceGroupName: gaies-pe-prod-common-scg
+      - ipProtocol: tcp
+        fromPort: 2049
+        toPort: 2049
+        sourceGroupName: gaies-pe-prod-common-scg
         description: Self
       - ipProtocol: all
         fromPort: -1
         toPort: -1
         cidrIp: 10.146.105.6/28
         description: Salt Master
-    tags: {"Name": "gaies-pe-prd-common-scg", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prd", "ManagedBy": "Salt", "Project": "gaies-pe"}
+    tags: {"Name": "gaies-pe-prod-common-scg", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prod", "ManagedBy": "Salt", "Project": "gaies-pe"}
 
-  - name: gaies-pe-prd-ecs-fargate-LoadBalancerSecurityGroup
+  - name: gaies-pe-prod-ecs-fargate-LoadBalancerSecurityGroup
     description: "Access through LoadBalancer"
     vpc: vpc-0da4036c07a04d82b
     rules:
@@ -98,7 +102,7 @@ secgrps:
         fromPort: 443
         toPort: 443
         cidrIp: 10.146.75.0/24
-        description: pe prd VPC
+        description: pe prod VPC
       - ipProtocol: tcp
         fromPort: 443
         toPort: 443
@@ -167,24 +171,30 @@ secgrps:
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-prd-common-scg
+        sourceGroupName: gaies-pe-prod-common-scg
         description: common secgrp
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-prd-ecs-fargate-LoadBalancerSecurityGroup
+        sourceGroupName: gaies-pe-prod-ecs-fargate-LoadBalancerSecurityGroup
         description: Self
-    tags: {"Name": "gaies-pe-prd-ecs-fargate-LoadBalancerSecurityGroup", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prd", "Project": "gaies-pe", "Manageby": "Salt"}
+    tags: {"Name": "gaies-pe-prod-ecs-fargate-LoadBalancerSecurityGroup", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prod", "Project": "gaies-pe", "Manageby": "Salt"}
 
-  - name: gaies-pe-prd-ecs-fargate-ContainerSecurityGroup
+  - name: gaies-pe-prod-ecs-fargate-ContainerSecurityGroup
     description: "Access for ecs Containers"
-    vpc: vpc-0da4036c07a04d82b 
+    vpc: vpc-0da4036c07a04d82b
+    egressRules:
+      - ipProtocol: all
+        fromPort: -1
+        toPort: -1
+        cidrIp: 10.146.75.0/24
+        description: pe Prod Vpc
     rules:
       - ipProtocol: all
         fromPort: -1
         toPort: -1
         cidrIp: 10.146.75.0/24
-        description: PE prd VPC
+        description: PE prod VPC
       - ipProtocol: all
         fromPort: -1
         toPort: -1
@@ -208,11 +218,11 @@ secgrps:
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-prd-ecs-fargate-ContainerSecurityGroup
+        sourceGroupName: gaies-pe-prod-ecs-fargate-ContainerSecurityGroup
         description: Self
-    tags: {"Name": "gaies-pe-prd-ecs-fargate-ContainerSecurityGroup", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prd", "Project": "gaies-pe", "Manageby": "Salt"}
+    tags: {"Name": "gaies-pe-prod-ecs-fargate-ContainerSecurityGroup", "vpc": "vpc-0da4036c07a04d82b", "Environment": "prod", "Project": "gaies-pe", "Manageby": "Salt"}
 
-  - name: gaies-pe-common-scg-2
+  - name: gaies-pe-prod-common-scg-2
     description: "Common secgrp for gaies pe"
     vpc: vpc-0da4036c07a04d82b 
     rules:
@@ -230,7 +240,7 @@ secgrps:
         fromPort: -1
         toPort: -1
         cidrIp: 10.146.75.0/24
-        description: PE prd VPC
+        description: PE prod VPC
       - ipProtocol: all
         fromPort: -1
         toPort: -1
@@ -254,6 +264,6 @@ secgrps:
       - ipProtocol: all
         fromPort: -1
         toPort: -1
-        sourceGroupName: gaies-pe-common-scg-2
+        sourceGroupName: gaies-pe-prod-common-scg-2
         description: Self
-    tags: {"Name": "gaies-pe-common-scg-2", "Environment": "prd", "vpc": "vpc-0da4036c07a04d82b", "Project": "gaies-pe", "Manageby": "Salt"}
+    tags: {"Name": "gaies-pe-prod-common-scg-2", "Environment": "prod", "vpc": "vpc-0da4036c07a04d82b", "Project": "gaies-pe", "Manageby": "Salt"}

@@ -1,8 +1,8 @@
 targetGroups:
-  - name: gaies-pe-gitlab-pl
-    port: 80
+  - name: gaies-pe-dev-NEWTargetGroup
+    port: 443
     region: us-east-1
-    protocol: HTTP
+    protocol: HTTPS
     unhealthyThresholdCount: 2
     healthyThresholdCount: 2
     timeout: 5
@@ -10,13 +10,12 @@ targetGroups:
     healthCheckPath: /policy-engine.css
     vpc: vpc-0ab445d0a2c633df4
     tags:
-      - {"Key":"Name", "Value": "gaies-pe-gitlab-pl"} 
-      - {"Key": "Environment", "Value": "Dev"}
+      - {"Key":"Name", "Value": "gaies-pe-dev-NEWTargetGroup"} 
+      - {"Key": "Environment", "Value": "dev"}
       - {"Key": "Manageby", "Value": "Salt"} 
-      - {"Key": "Deletethis", "Value": "True"}
       - {"Key": "Project", "Value": "gaies-pe"}
 
-  - name: gaies-pe-flask-gitlab-pl
+  - name: gaies-pe-dev-flask-targetgroup
     port: 5000
     region: us-east-1
     protocol: HTTP
@@ -27,8 +26,7 @@ targetGroups:
     healthCheckPath: /health
     vpc: vpc-0ab445d0a2c633df4
     tags:
-      - {"Key":"Name", "Value": "gaies-pe-flask-gitlab-pl"} 
-      - {"Key": "Environment", "Value": "Dev"}
+      - {"Key":"Name", "Value": "gaies-pe-dev-flask-targetgroup"} 
+      - {"Key": "Environment", "Value": "dev"}
       - {"Key": "Manageby", "Value": "Salt"} 
-      - {"Key": "Deletethis", "Value": "True"}
       - {"Key": "Project", "Value": "gaies-pe"}

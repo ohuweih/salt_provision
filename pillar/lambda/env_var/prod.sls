@@ -1,7 +1,7 @@
 functions:
   - functionName: gaies-pe-prod-backend-container
     account: 845537639440
-    roleArn: arn:aws:iam::845537639440:role/gaies-prod-pe-lambda-role
+    roleArn: arn:aws:iam::845537639440:role/gaies-pe-prod-lambda-role
     image: 845537639440.dkr.ecr.us-east-1.amazonaws.com/pe-prod/backend-lambda:latest
     description: "Back end lambda for pe"
     timeout: 900 #time is in (secs/minutes)
