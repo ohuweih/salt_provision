@@ -24,6 +24,15 @@
     - name: {{ secgrp.name }}
     - description: {{ secgrp.description }}
     - vpc_id: {{ secgrp.vpc }}
+    {% if secgrp.egressRules is defined %}
+    {% for egressRule in secgrp.egressRules %}
+    - rules_egress:
+      - ip_protocol: {{ egressRule.ipProtocol }}
+        from_port: {{ egressRule.fromPort }}
+        to_port: {{ egressRule.toPort }}
+        cidr_ip: {{ egressRule.cidrIp }}
+    {% endfor %}
+    {% endif %}
     - rules:
       {% for rule in secgrp.rules %}
       - ip_protocol: {{ rule.ipProtocol }}
